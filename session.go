@@ -43,13 +43,13 @@ func (session *Session) ScanString(str string) ScanResult {
 }
 
 // ScanBuffer scans a buffer of content for malware. Returns the scan result.
-func (session *Session) ScanBuffer(buf []byte) ScanResult {
+func (session *Session) ScanBuffer(buf []byte, fileName string) ScanResult {
     var result ScanResult
     amsiScanBuffer.Call(
         uintptr(unsafe.Pointer(context)),
         uintptr(unsafe.Pointer(&buf[0])),
         uintptr(uint64(len(buf))),
-        uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(os.Args[0]))),
+        uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(fileName))),
         uintptr(unsafe.Pointer(session)),
         uintptr(unsafe.Pointer(&result)))
     return result
