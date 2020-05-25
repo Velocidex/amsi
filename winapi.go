@@ -22,7 +22,7 @@ type ScanResult int
 // Enum values for ScanResult
 const (
     ResultClean               ScanResult = iota
-    ResultNotDetected         ScanResult = iota
+    ResultNotDetected         ScanResult = 1
     ResultBlockedByAdminStart ScanResult = 16384
     ResultBlockedByAdminEnd   ScanResult = 20479
     ResultDetected            ScanResult = 32768
