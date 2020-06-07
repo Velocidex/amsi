@@ -7,13 +7,26 @@ package amsi
 import "syscall"
 
 // Entry points for AMSI through proc invoke
-var amsi = syscall.MustLoadDLL("amsi.dll")
-var amsiInitialize      = amsi.MustFindProc("AmsiInitialize")
-var amsiUninitialize    = amsi.MustFindProc("AmsiUninitialize")
-var amsiOpenSession     = amsi.MustFindProc("AmsiOpenSession")
-var amsiCloseSession    = amsi.MustFindProc("AmsiCloseSession")
-var amsiScanBuffer      = amsi.MustFindProc("AmsiScanBuffer")
-var amsiScanString      = amsi.MustFindProc("AmsiScanString")
+var amsi *syscall.DLL
+var amsiInitialize *syscall.Proc
+var amsiUninitialize *syscall.Proc
+var amsiOpenSession *syscall.Proc
+var amsiCloseSession *syscall.Proc
+var amsiScanBuffer *syscall.Proc
+var amsiScanString *syscall.Proc
+
+func init() {
+	amsiMaybe, err := syscall.LoadDLL("amsi.dll")
+	if err == nil {
+		amsi = amsiMaybe
+		amsiInitialize = amsi.MustFindProc("AmsiInitialize")
+		amsiUninitialize = amsi.MustFindProc("AmsiUninitialize")
+		amsiOpenSession = amsi.MustFindProc("AmsiOpenSession")
+		amsiCloseSession = amsi.MustFindProc("AmsiCloseSession")
+		amsiScanBuffer = amsi.MustFindProc("AmsiScanBuffer")
+		amsiScanString = amsi.MustFindProc("AmsiScanString")
+	}
+}
 
 // ScanResult is an enumeration which specifies the types of results returned
 // by scans from AMSI.
@@ -21,9 +34,10 @@ type ScanResult int
 
 // Enum values for ScanResult
 const (
-    ResultClean               ScanResult = iota
-    ResultNotDetected         ScanResult = iota
-    ResultBlockedByAdminStart ScanResult = 16384
-    ResultBlockedByAdminEnd   ScanResult = 20479
-    ResultDetected            ScanResult = 32768
+	ResultClean               ScanResult = 0
+	ResultNotDetected         ScanResult = 1
+	CannotInitializeAmsi      ScanResult = 2
+	ResultBlockedByAdminStart ScanResult = 16384
+	ResultBlockedByAdminEnd   ScanResult = 20479
+	ResultDetected            ScanResult = 32768
 )
