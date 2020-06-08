@@ -42,26 +42,38 @@ func (session *Session) ScanString(str string) ScanResult {
 		return CannotInitializeAmsi
 	}
 	var result ScanResult
+	utf16Str, err := syscall.UTF16PtrFromString(str)
+	if err != nil {
+		panic(err)
+	}
+	utf16Name, err := syscall.UTF16PtrFromString(os.Args[0])
+	if err != nil {
+		panic(err)
+	}
 	amsiScanString.Call(
 		uintptr(unsafe.Pointer(context)),
-		uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(str))),
-		uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(os.Args[0]))),
+		uintptr(unsafe.Pointer(utf16Str)),
+		uintptr(unsafe.Pointer(utf16Name)),
 		uintptr(unsafe.Pointer(session)),
 		uintptr(unsafe.Pointer(&result)))
 	return result
 }
 
 // ScanBuffer scans a buffer of content for malware. Returns the scan result.
-func (session *Session) ScanBuffer(buf []byte, fileName string) ScanResult {
+func (session *Session) ScanBuffer(fileContent []byte) ScanResult {
 	if amsiScanBuffer == nil {
 		return CannotInitializeAmsi
 	}
 	var result ScanResult
+	utf16Name, err := syscall.UTF16PtrFromString(os.Args[0])
+	if err != nil {
+		panic(err)
+	}
 	amsiScanBuffer.Call(
 		uintptr(unsafe.Pointer(context)),
-		uintptr(unsafe.Pointer(&buf[0])),
-		uintptr(uint64(len(buf))),
-		uintptr(unsafe.Pointer(syscall.StringToUTF16Ptr(filename))),
+		uintptr(unsafe.Pointer(&fileContent[0])),
+		uintptr(uint64(len(fileContent))),
+		uintptr(unsafe.Pointer(utf16Name)),
 		uintptr(unsafe.Pointer(session)),
 		uintptr(unsafe.Pointer(&result)))
 	return result
