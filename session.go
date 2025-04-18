@@ -16,7 +16,7 @@ type Session uintptr
 // OpenSession opens an AMSI session for requesting scans on one or multiple
 // files. Returns a session object for requesting scans.
 func OpenSession() *Session {
-	if amsiOpenSession == nil {
+	if amsiOpenSession.Find() == nil {
 		return nil
 	}
 	session := new(Session)
@@ -28,7 +28,7 @@ func OpenSession() *Session {
 
 // CloseSession from the initialized context's open session function.
 func CloseSession(session *Session) {
-	if amsiCloseSession == nil {
+	if amsiCloseSession.Find() == nil {
 		return
 	}
 	amsiCloseSession.Call(
@@ -38,7 +38,7 @@ func CloseSession(session *Session) {
 
 // ScanString scans a string for malware. Returns the scan result.
 func (session *Session) ScanString(str string) ScanResult {
-	if amsiScanString == nil {
+	if amsiScanString.Find() == nil {
 		return CannotInitializeAmsi
 	}
 	var result ScanResult
@@ -61,7 +61,7 @@ func (session *Session) ScanString(str string) ScanResult {
 
 // ScanBuffer scans a buffer of content for malware. Returns the scan result.
 func (session *Session) ScanBuffer(fileContent []byte) ScanResult {
-	if amsiScanBuffer == nil {
+	if amsiScanBuffer.Find() == nil {
 		return CannotInitializeAmsi
 	}
 	var result ScanResult
