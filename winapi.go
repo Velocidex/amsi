@@ -4,29 +4,20 @@
 
 package amsi
 
-import "syscall"
+import (
+	"golang.org/x/sys/windows"
+)
 
 // Entry points for AMSI through proc invoke
-var amsi *syscall.DLL
-var amsiInitialize *syscall.Proc
-var amsiUninitialize *syscall.Proc
-var amsiOpenSession *syscall.Proc
-var amsiCloseSession *syscall.Proc
-var amsiScanBuffer *syscall.Proc
-var amsiScanString *syscall.Proc
-
-func init() {
-	amsiMaybe, err := syscall.LoadDLL("amsi.dll")
-	if err == nil {
-		amsi = amsiMaybe
-		amsiInitialize = amsi.MustFindProc("AmsiInitialize")
-		amsiUninitialize = amsi.MustFindProc("AmsiUninitialize")
-		amsiOpenSession = amsi.MustFindProc("AmsiOpenSession")
-		amsiCloseSession = amsi.MustFindProc("AmsiCloseSession")
-		amsiScanBuffer = amsi.MustFindProc("AmsiScanBuffer")
-		amsiScanString = amsi.MustFindProc("AmsiScanString")
-	}
-}
+var (
+	amsi             = windows.NewLazySystemDLL("amsi.dll")
+	amsiInitialize   = amsi.NewProc("AmsiInitialize")
+	amsiUninitialize = amsi.NewProc("AmsiUninitialize")
+	amsiOpenSession  = amsi.NewProc("AmsiOpenSession")
+	amsiCloseSession = amsi.NewProc("AmsiCloseSession")
+	amsiScanBuffer   = amsi.NewProc("AmsiScanBuffer")
+	amsiScanString   = amsi.NewProc("AmsiScanString")
+)
 
 // ScanResult is an enumeration which specifies the types of results returned
 // by scans from AMSI.
